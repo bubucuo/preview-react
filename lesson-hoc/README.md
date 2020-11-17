@@ -1,10 +1,8 @@
 # 高阶组件-HOC
 
+​ 为了提高组件复用率，可测试性，就要保证组件功能单一性；但是若要满足复杂需求就要扩展功能单一的组件，在 React 里就有了 HOC（Higher-Order Components）的概念。
 
-
-​		 为了提高组件复用率，可测试性，就要保证组件功能单一性；但是若要满足复杂需求就要扩展功能单一的组件，在 React 里就有了 HOC（Higher-Order Components）的概念。
-
-​		定义：**高阶组件是参数为组件，返回值为新组件的函数。**
+​ 定义：**高阶组件是参数为组件，返回值为新组件的函数。**
 
 ## 基本使用
 
@@ -48,8 +46,6 @@ export default class HocPage extends Component {
   }
 }
 ```
-
-
 
 ## 链式调用
 
@@ -100,8 +96,6 @@ export default class HocPage extends Component {
   }
 }
 ```
-
-
 
 ## 装饰器写法
 
@@ -162,8 +156,6 @@ export default class HocPage extends Component {
 组件是将 props 转换为 UI，而高阶组件是将组件转换为另一个组件。
 
 HOC 在 React 的第三方库中很常见，例如 React-Redux 的 connect，我们下节课就会学到。
-
-
 
 ## 使用 HOC 的注意事项
 
