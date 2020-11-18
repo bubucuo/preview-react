@@ -20,10 +20,9 @@
 
 ```jsx
 import React, {Component} from "react";
-// import {createForm} from "rc-form";
-import createForm from "../components/my-rc-form/";
-
 import Input from "../components/Input";
+// import {createForm} from "rc-form";
+import {createForm} from "../components/my-rc-form/";
 
 const nameRules = {required: true, message: "请输入姓名！"};
 const passworRules = {required: true, message: "请输入密码！"};
@@ -32,31 +31,35 @@ const passworRules = {required: true, message: "请输入密码！"};
 class MyRCForm extends Component {
   constructor(props) {
     super(props);
-    // this.state = {
-    //   username: "",
-    //   password: ""
-    // };
+    this.state = {
+      username: "",
+      password: ""
+    };
   }
 
   componentDidMount() {
-    this.props.form.setFieldsValue({username: "default"});
+    const {setFieldsValue} = this.props.form;
+    setFieldsValue({username: "default"});
   }
 
   submit = () => {
-    const {getFieldsValue, validateFields} = this.props.form;
-    // console.log("submit", getFieldsValue()); //sy-log
-    validateFields((err, val) => {
+    // const {username, password} = this.state;
+    const {getFieldsValue, getFieldValue, validateFields} = this.props.form;
+    console.log("syta", getFieldsValue(), getFieldValue("username")); //sy-log
+
+    validateFields((err, vals) => {
       if (err) {
-        console.log("err", err); //sy-log
+        console.log("失败", err); //sy-log
       } else {
-        console.log("校验成功", val); //sy-log
+        console.log("成功", vals); //sy-log
       }
     });
   };
 
   render() {
+    const {username, password} = this.state;
     console.log("props", this.props); //sy-log
-    // const {username, password} = this.state;
+
     const {getFieldDecorator} = this.props.form;
     return (
       <div>
@@ -74,6 +77,8 @@ class MyRCForm extends Component {
 }
 
 export default MyRCForm;
+
+// form state
 ```
 
 
@@ -83,48 +88,65 @@ export default MyRCForm;
 ```js
 import React, {Component} from "react";
 
-export default function createForm(Cmp) {
+export function createForm(Cmp) {
   return class extends Component {
     constructor(props) {
       super(props);
       this.state = {};
       this.options = {};
     }
-
+    getFieldsValue = () => {
+      return {...this.state};
+    };
+    getFieldValue = name => {
+      return this.state[name];
+    };
     handleChange = e => {
       const {name, value} = e.target;
       this.setState({[name]: value});
     };
 
-    getFieldDecorator = (field, option) => InputCmp => {
-      this.options[field] = option;
-      return React.cloneElement(InputCmp, {
-        name: field,
-        value: this.state[field] || "",
-        onChange: this.handleChange
-      });
-    };
     setFieldsValue = newStore => {
       this.setState(newStore);
     };
-    getFieldsValue = () => {
-      return this.state;
+
+    getFieldDecorator = (fieldName, option) => InputCmp => {
+      this.options[fieldName] = option;
+      return React.cloneElement(InputCmp, {
+        name: fieldName,
+        value: this.state[fieldName] || "",
+        onChange: this.handleChange
+      });
     };
+
     validateFields = callback => {
-      // 自己想象吧~
+      let err = [];
+      for (let fieldName in this.options) {
+        if (this.state[fieldName] === undefined) {
+          err.push({
+            [fieldName]: "err"
+          });
+        }
+      }
+      if (err.length === 0) {
+        callback(null, {...this.state});
+      } else {
+        callback(err, {...this.state});
+      }
     };
+
     getForm = () => {
       return {
-        form: {
-          getFieldDecorator: this.getFieldDecorator,
-          setFieldsValue: this.setFieldsValue,
-          getFieldsValue: this.getFieldsValue,
-          validateFields: this.validateFields
-        }
+        getFieldsValue: this.getFieldsValue,
+        getFieldValue: this.getFieldValue,
+        setFieldsValue: this.setFieldsValue,
+        getFieldDecorator: this.getFieldDecorator,
+        validateFields: this.validateFields
       };
     };
     render() {
-      return <Cmp {...this.props} {...this.getForm()} />;
+      const form = this.getForm();
+      return <Cmp {...this.props} form={form} />;
     }
   };
 }
